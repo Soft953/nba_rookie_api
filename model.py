@@ -1,11 +1,13 @@
 from joblib import load
+#import pickle
 
 class Model:
-    def __init__(self, path):
+    def __init__(self, model_path, scaler_path):
         try:
-            self.model = load(path)
+            self.model = load(model_path)
+            self.scaler = load(scaler_path)
         except:
-            raise ValueError('Cannot instantiate model, wrong path')
+            raise ValueError('Cannot instantiate model or scaler, wrong path')
 
     def predict(self, features):
         if self.model is not None:
