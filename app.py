@@ -8,7 +8,36 @@ app = Flask(__name__)
 # Simple Flask API
 
 @app.route('/')
-def hello_world():
+def predict():
+    """Return prediction based on request.args
+
+    Example: GET request args should look like
+
+    {
+        'GP': 36,
+        'MIN': 27.4,
+        'PTS': 7.4,
+        'FGM': 2.6,
+        'FGA': 7.6,
+        'FG%': 34.7,
+        '3P Made': 0.5,
+        '3PA': 2.1,
+        '3P%': 25,
+        'FTM': 1.6,
+        'FTA': 2.3,
+        'FT%': 69.9,
+        'OREB': 0.7,
+        'DREB': 3.4,
+        'REB': 4.1,
+        'AST': 1.9,
+        'STL': 0.4,
+        'BLK': 0.4,
+        'TOV': 1.3
+    }
+
+    Returns:
+        str: prediction, a player is worth investing or not
+    """
     try:
       model = Model(model_path='models/clf_knn.joblib', scaler_path='models/minmax_scaler.joblib')
       features_name = [

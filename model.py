@@ -8,7 +8,3 @@ class Model:
             self.scaler = load(scaler_path)
         except:
             raise ValueError('Cannot instantiate model or scaler, wrong path')
-
-    def predict(self, features):
-        if self.model is not None:
-            return self.model.predict(features)
