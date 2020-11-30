@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import yaml
 
 from model import Model
 from exception import InvalidUsage
@@ -40,24 +41,35 @@ def predict():
         str: prediction, a player is worth investing or not
     """
     try:
-      model = Model(model_path='models/clf_knn.joblib', scaler_path='models/minmax_scaler.joblib')
-      features_name = [
-          'GP', 'MIN', 'PTS', 'FGM',
-          'FGA', 'FG%', '3P Made', '3PA',
-          '3P%', 'FTM', 'FTA', 'FT%', 'OREB',
-          'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV'
-      ]
 
-      x = []
-      for f in features_name:
-          value = request.args.get(f)
-          if value: x.append(value)
-          else : x.append(0)
+        with open('configs.yaml', 'r') as f:
+            configs = yaml.safe_load(f)
 
-      x_minmax = model.scaler.transform([x])
-      y_pred = model.model.predict(x_minmax)[0]
-      return  "Prediction: " + str(y_pred) + ", so this player " + {0:'is not', 1:'is'}[y_pred] + " worth investing in NBA"
+        if 'api' in configs and 'model_path' in configs['api']:
+            model_path = configs['api']['model_path']
+        if 'api' in configs and 'scaler_path' in configs['api']:
+            scaler_path = configs['api']['scaler_path']
+
+        model = Model(model_path=model_path, scaler_path=scaler_path)
+        features_name = [
+            'GP', 'MIN', 'PTS', 'FGM',
+            'FGA', 'FG%', '3P Made', '3PA',
+            '3P%', 'FTM', 'FTA', 'FT%', 'OREB',
+            'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV'
+        ]
+
+        x = []
+        for f in features_name:
+            value = request.args.get(f)
+            if value: x.append(value)
+            else : x.append(0)
+
+        x_minmax = model.scaler.transform([x])
+        y_pred = model.model.predict(x_minmax)[0]
+        return  "Prediction: " + str(y_pred) + ", so this player " + {0:'is not', 1:'is'}[y_pred] + " worth investing in NBA"
     except ValueError as e:
+        raise InvalidUsage(str(e), status_code=500)
+    except yaml.YAMLError as e:
         raise InvalidUsage(str(e), status_code=500)
     except Exception as e:
         raise InvalidUsage(str(e), status_code=500)
