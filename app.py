@@ -39,7 +39,7 @@ def predict():
         str: prediction, a player is worth investing or not
     """
     try:
-      model = Model(model_path='models/clf_knn.joblib', scaler_path='models/minmax_scaler.joblib')
+      model = Model(model_path='models/clf_knn.jobli)', scaler_path='models/minmax_scaler.joblib')
       features_name = [
           'GP', 'MIN', 'PTS', 'FGM',
           'FGA', 'FG%', '3P Made', '3PA',
@@ -57,8 +57,16 @@ def predict():
       y_pred = model.model.predict(x_minmax)[0]
       return  "Prediction: " + str(y_pred) + ", so this player " + {0:'is not', 1:'is'}[y_pred] + " worth investing in NBA"
     except ValueError as e:
-      return 'Error ' + str(e)
-    return 'Hello, World!'
+        raise InvalidUsage(e, status_code=500)
+    except Exception as e:
+        raise InvalidUsage(e, status_code=500)
+
+
+@app.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
 
 
 if __name__ == '__main__':
