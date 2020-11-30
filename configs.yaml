@@ -1,3 +1,3 @@
 api:
-  model_path: 'models/clf_knn.joblib'
+  model_path: 'models/clf_logistic.joblib'
   scaler_path: 'models/minmax_scaler.joblib'
